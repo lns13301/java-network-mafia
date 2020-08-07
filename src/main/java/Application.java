@@ -12,5 +12,6 @@ public class Application {
         }
 
         (new MafiaClient()).start();
+        (new MafiaClient()).start();
     }
 }
