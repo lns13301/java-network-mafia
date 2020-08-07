@@ -27,7 +27,9 @@ public class MafiaServer extends Thread{
             e.printStackTrace();
         }
 
-        waitClientConnection();
+        while (true) {
+            waitClientConnection();
+        }
     }
 
     public void waitClientConnection() {
@@ -40,6 +42,7 @@ public class MafiaServer extends Thread{
 
             System.out.println("[server] connected! \nconnected socket address:" + remoteHostName
                     + ", port:" + remoteHostPort);
+            System.out.println("[서버] 현재 연결된 클라이언트 수 : " + clientSockets.size());
             System.out.println("\n");
         }
         catch (IOException e) {
