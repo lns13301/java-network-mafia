@@ -24,5 +24,24 @@ public class MafiaServer extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        waitClientConnection();
     }
+
+    public void waitClientConnection() {
+        try {
+            clientSockets.add(serverSocket.accept());
+            InetSocketAddress remoteSocketAddress = (InetSocketAddress)clientSockets.get(clientSockets.size() - 1).getRemoteSocketAddress();
+            String remoteHostName = remoteSocketAddress.getAddress().getHostAddress();
+            int remoteHostPort = remoteSocketAddress.getPort();
+
+            System.out.println("[server] connected! \nconnected socket address:" + remoteHostName
+                    + ", port:" + remoteHostPort);
+            System.out.println("\n");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
