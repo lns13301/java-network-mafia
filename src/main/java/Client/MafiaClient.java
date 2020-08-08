@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MafiaClient extends Thread{
     private static final String SERVER_IP = "127.0.0.1";
@@ -38,6 +39,16 @@ public class MafiaClient extends Thread{
 
             printWriter.close();
             bufferedReader.close();
+
+            String name = "" + ThreadLocalRandom.current().nextInt(214700000);
+            Thread sender = new SendThread(socket, name);
+            Thread receiver = new ReceiveThread(socket);
+
+            System.out.println("채팅방에 입장하였습니다.");
+
+            sender.start();
+            receiver.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
