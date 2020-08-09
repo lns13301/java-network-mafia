@@ -40,7 +40,7 @@ public class MafiaClient extends Thread{
             printWriter.close();
             bufferedReader.close();
 
-            String name = "" + ThreadLocalRandom.current().nextInt(214700000);
+            String name = "" + ThreadLocalRandom.current().nextInt(2147483647);
             Thread sender = new SendThread(socket, name);
             Thread receiver = new ReceiveThread(socket);
 

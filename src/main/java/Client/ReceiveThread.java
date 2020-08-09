@@ -5,13 +5,13 @@ import java.net.Socket;
 
 public class ReceiveThread extends Thread{
     private Socket socket;
-    private DataInputStream in;
+    private DataInputStream dataInputStream;
 
     public ReceiveThread(Socket socket){
         this.socket = socket;
 
         try{
-            in = new DataInputStream(this.socket.getInputStream());
+            dataInputStream = new DataInputStream(this.socket.getInputStream());
         }catch(Exception e){
             System.out.println("예외:"+e);
         }
@@ -20,9 +20,9 @@ public class ReceiveThread extends Thread{
     @Override
 
     public void run() {
-        while (in != null) {
+        while (dataInputStream != null) {
             try {
-                System.out.println(in.readUTF());
+                System.out.println(dataInputStream.readUTF());
             } catch (Exception e) {
                 System.out.println("예외:" + e);
             }
