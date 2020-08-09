@@ -21,6 +21,7 @@ public class MafiaClient extends Thread{
     public void run() {
         try {
             socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
+            sendToServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -30,6 +31,7 @@ public class MafiaClient extends Thread{
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+            BufferedReader serverBuf = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String message;
 
             message = bufferedReader.readLine();
@@ -37,18 +39,28 @@ public class MafiaClient extends Thread{
             printWriter.println(message);
             printWriter.flush();
 
-            printWriter.close();
-            bufferedReader.close();
+            while(true) {
+                message = bufferedReader.readLine();
+
+                if (message.equals("exit") || message.equals("종료")) {
+                    break;
+                }
+
+                printWriter.println(message);
+                printWriter.flush();
+
+                // String receiveMessage = serverBuf.readLine();
+            }
 
             String name = "" + ThreadLocalRandom.current().nextInt(2147483647);
             Thread sender = new SendThread(socket, name);
             Thread receiver = new ReceiveThread(socket);
 
-            System.out.println("채팅방에 입장하였습니다.");
-
             sender.start();
             receiver.start();
 
+            printWriter.close();
+            bufferedReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
