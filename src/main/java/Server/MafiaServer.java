@@ -36,10 +36,10 @@ public class MafiaServer extends Thread{
 
         waitClientConnection();
 
-        BufferedReader tmpBuf = null;
+        BufferedReader bufferedReader = null;
 
         try {
-            tmpBuf = new BufferedReader(new InputStreamReader(clientSockets.get(clientSockets.size() - 1).getInputStream()));
+            bufferedReader = new BufferedReader(new InputStreamReader(clientSockets.get(clientSockets.size() - 1).getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,7 +48,7 @@ public class MafiaServer extends Thread{
 
         while (true) {
             try {
-                message = tmpBuf.readLine();
+                message = bufferedReader.readLine();
 
                 if (message == null) {
                     System.out.println("[서버] 상대방과 연결이 끊어졌습니다.");
@@ -62,14 +62,15 @@ public class MafiaServer extends Thread{
                 e.printStackTrace();
             }
         }
+
+        closeServer();
     }
 
     public void waitClientConnection() {
         try {
-            Socket clientSocket = serverSocket.accept();
-            clientSockets.add(clientSocket);
+            clientSockets.add(serverSocket.accept());
 
-            InetSocketAddress remoteSocketAddress = (InetSocketAddress)clientSocket.getRemoteSocketAddress();
+            InetSocketAddress remoteSocketAddress = (InetSocketAddress)clientSockets.get(clientSockets.size() - 1).getRemoteSocketAddress();
             String remoteHostName = remoteSocketAddress.getAddress().getHostAddress();
             int remoteHostPort = remoteSocketAddress.getPort();
 
@@ -94,6 +95,17 @@ public class MafiaServer extends Thread{
             printWriter.println(message);
             printWriter.flush();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeServer() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

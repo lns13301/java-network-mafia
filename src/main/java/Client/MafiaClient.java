@@ -49,7 +49,7 @@ public class MafiaClient extends Thread{
                 printWriter.println(message);
                 printWriter.flush();
 
-                // String receiveMessage = serverBuf.readLine();
+                // sString receiveMessage = serverBuf.readLine();
             }
 
             String name = "" + ThreadLocalRandom.current().nextInt(2147483647);
@@ -61,9 +61,20 @@ public class MafiaClient extends Thread{
 
             printWriter.close();
             bufferedReader.close();
+            disconnectServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public void disconnectServer() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
