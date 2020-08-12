@@ -2,15 +2,12 @@ package Server;
 
 import sun.net.NetworkClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MafiaServer extends Thread{
     private static final int SERVER_PORT = 2345;
@@ -18,12 +15,14 @@ public class MafiaServer extends Thread{
     private List<Socket> clientSockets;
     private String localHostAddress;
     private boolean isRunning;
+    private Map<String, DataOutputStream> clients;
 
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket();
             clientSockets = new LinkedList<>();
+            clients = new HashMap<>();
 
             localHostAddress = "127.0.0.1";
             serverSocket.bind(new InetSocketAddress(localHostAddress, SERVER_PORT));
@@ -109,4 +108,49 @@ public class MafiaServer extends Thread{
             e.printStackTrace();
         }
     }
+
+    class Receiver extends Thread{
+        private DataInputStream dataInputStream;
+        private DataOutputStream dataOutputStream;
+        private String id;
+        private String message;
+
+        public Receiver(Socket socket) {
+            try{
+                dataInputStream = new DataInputStream(socket.getInputStream());
+                dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                id = "" + ThreadLocalRandom.current().nextInt(2147483647);
+            }catch(Exception e){
+                System.out.println("예외:"+e);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (dataInputStream != null) {
+                    message = dataInputStream.readUTF();
+                    sendMessage(message);
+                }
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        private void sendMessage(String message) {
+            Iterator<String> iterator = clients.keySet().iterator();
+            String key = "";
+
+            while (iterator.hasNext()) {
+                key = iterator.next();
+                try {
+                    clients.get(key).writeUTF(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }
