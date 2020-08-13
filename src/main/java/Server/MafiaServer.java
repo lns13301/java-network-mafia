@@ -109,6 +109,26 @@ public class MafiaServer extends Thread{
         }
     }
 
+    public void addClient(String id, DataOutputStream dataOutputStream) {
+        String message = id + "님이 접속하였습니다.";
+        sendMessage(message);
+        clients.put(id, dataOutputStream);
+    }
+
+    public void sendMessage(String message) {
+        Iterator<String> iterator = clients.keySet().iterator();
+        String key = "";
+
+        while (iterator.hasNext()) {
+            key = iterator.next();
+            try {
+                clients.get(key).writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     class Receiver extends Thread{
         private DataInputStream dataInputStream;
         private DataOutputStream dataOutputStream;
@@ -120,6 +140,7 @@ public class MafiaServer extends Thread{
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 id = "" + ThreadLocalRandom.current().nextInt(2147483647);
+                addClient(id, dataOutputStream);
             }catch(Exception e){
                 System.out.println("예외:"+e);
             }
@@ -135,20 +156,6 @@ public class MafiaServer extends Thread{
             }
             catch (IOException e){
                 e.printStackTrace();
-            }
-        }
-
-        private void sendMessage(String message) {
-            Iterator<String> iterator = clients.keySet().iterator();
-            String key = "";
-
-            while (iterator.hasNext()) {
-                key = iterator.next();
-                try {
-                    clients.get(key).writeUTF(message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
