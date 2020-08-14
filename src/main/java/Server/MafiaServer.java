@@ -115,6 +115,11 @@ public class MafiaServer extends Thread{
         clients.put(id, dataOutputStream);
     }
 
+    public void removeClient(String id) {
+        String message = id + "님이 퇴장하였습니다.";
+        sendMessage(message);
+    }
+
     public void sendMessage(String message) {
         Iterator<String> iterator = clients.keySet().iterator();
         String key = "";
@@ -156,6 +161,7 @@ public class MafiaServer extends Thread{
             }
             catch (IOException e){
                 e.printStackTrace();
+                removeClient(id);
             }
         }
     }
