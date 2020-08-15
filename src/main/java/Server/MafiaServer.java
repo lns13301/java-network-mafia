@@ -1,5 +1,6 @@
 package Server;
 
+import Client.ReceiveThread;
 import sun.net.NetworkClient;
 
 import java.io.*;
@@ -12,17 +13,17 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MafiaServer extends Thread{
     private static final int SERVER_PORT = 2345;
     private ServerSocket serverSocket;
-    private List<Socket> clientSockets;
     private String localHostAddress;
     private boolean isRunning;
     private Map<String, DataOutputStream> clients;
+    private int connectedCount;
 
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket();
-            clientSockets = new LinkedList<>();
             clients = new HashMap<>();
+            connectedCount = 0;
 
             localHostAddress = "127.0.0.1";
             serverSocket.bind(new InetSocketAddress(localHostAddress, SERVER_PORT));
@@ -34,68 +35,34 @@ public class MafiaServer extends Thread{
         }
 
         waitClientConnection();
-
-        BufferedReader bufferedReader = null;
-
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(clientSockets.get(clientSockets.size() - 1).getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String message;
-
-        while (true) {
-            try {
-                message = bufferedReader.readLine();
-
-                if (message == null) {
-                    System.out.println("[서버] 상대방과 연결이 끊어졌습니다.");
-                    break;
-                }
-                else {
-                    System.out.println("[서버] 클라이언트 : " + message);
-                    sendToClientMessage(message);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         closeServer();
     }
 
     public void waitClientConnection() {
-        try {
-            clientSockets.add(serverSocket.accept());
+        while (true) {
+            try {
+                Socket socket = serverSocket.accept();
+                connectedCount++;
 
-            InetSocketAddress remoteSocketAddress = (InetSocketAddress)clientSockets.get(clientSockets.size() - 1).getRemoteSocketAddress();
-            String remoteHostName = remoteSocketAddress.getAddress().getHostAddress();
-            int remoteHostPort = remoteSocketAddress.getPort();
+                InetSocketAddress remoteSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
+                String remoteHostName = remoteSocketAddress.getAddress().getHostAddress();
+                int remoteHostPort = remoteSocketAddress.getPort();
 
-            System.out.println("[server] connected! \nconnected socket address:" + remoteHostName
-                    + ", port:" + remoteHostPort);
-            System.out.println("[서버] 현재 연결된 클라이언트 수 : " + clientSockets.size());
-            System.out.println("\n");
-        }
-        catch (IOException e) {
-            e.printStackTrace();
+                System.out.println("[server] connected! \nconnected socket address:" + remoteHostName
+                        + ", port:" + remoteHostPort);
+                System.out.println("\n");
+
+                Receiver receiver = new Receiver(socket);
+                receiver.start();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void onReceivePacket() {
 
-    }
-
-    public void sendToClientMessage(String message) {
-        try {
-            PrintWriter printWriter = new PrintWriter(clientSockets.get(clientSockets.size() - 1).getOutputStream());
-
-            printWriter.println(message);
-            printWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void closeServer() {
