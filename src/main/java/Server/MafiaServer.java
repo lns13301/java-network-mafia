@@ -21,6 +21,7 @@ public class MafiaServer extends Thread{
     @Override
     public void run() {
         try {
+            Collections.synchronizedMap(clients);
             serverSocket = new ServerSocket();
             clients = new HashMap<>();
             connectedCount = 0;
