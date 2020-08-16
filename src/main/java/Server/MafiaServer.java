@@ -86,6 +86,7 @@ public class MafiaServer extends Thread{
     public void removeClient(String id) {
         String message = id + "님이 퇴장하였습니다.";
         sendMessage(message);
+        clients.remove(id);
     }
 
     public void sendMessage(String message) {
