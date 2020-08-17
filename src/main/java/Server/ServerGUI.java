@@ -35,11 +35,11 @@ public class ServerGUI extends JFrame implements ActionListener {
         String message = "서버 : " +jTextField.getText() + "\n";
         System.out.print(message);
         server.sendMessage(message);
-        appendMsg(message);
+        appendMessage(message);
         jTextField.setText("");
     }
 
-    public void appendMsg(String message) {
+    public void appendMessage(String message) {
         jTextArea.append(message);
     }
 }
