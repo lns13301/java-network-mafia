@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MafiaServer extends Thread{
+public class MafiaServer{
     private static final int SERVER_PORT = 2345;
     private ServerSocket serverSocket;
     private String localHostAddress;
@@ -18,10 +18,15 @@ public class MafiaServer extends Thread{
     private Map<String, DataOutputStream> clients;
     private int connectedCount;
 
-    @Override
-    public void run() {
+    private ServerGUI serverGUI;
+
+    public void setGui(ServerGUI serverGUI) {
+        this.serverGUI = serverGUI;
+    }
+
+    public void setting() {
         try {
-            Collections.synchronizedMap(clients);
+            //Collections.synchronizedMap(clients);
             serverSocket = new ServerSocket();
             clients = new HashMap<>();
             connectedCount = 0;

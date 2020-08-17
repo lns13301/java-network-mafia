@@ -1,9 +1,11 @@
 import Client.MafiaClient;
-import Server.MafiaServer;
+import Server.ServerGUI;
+
+import java.io.IOException;
 
 public class Application {
-    public static void main(String[] args) {
-        (new MafiaServer()).start();
+    public static void main(String[] args) throws IOException {
+        new ServerGUI();
 
         try {
             Thread.sleep(500);
@@ -11,7 +13,7 @@ public class Application {
             e.printStackTrace();
         }
 
-        (new MafiaClient()).start();
-        (new MafiaClient()).start();
+/*        (new MafiaClient()).start();
+        (new MafiaClient()).start();*/
     }
 }
