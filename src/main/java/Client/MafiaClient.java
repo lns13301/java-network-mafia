@@ -1,26 +1,33 @@
 package Client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MafiaClient extends Thread{
+public class MafiaClient {
     private static final String SERVER_IP = "127.0.0.1";
     private static final int SERVER_PORT = 2345;
     private Socket socket;
+    private DataInputStream dataInputStream;
+    private DataOutputStream dataOutputStream;
+    private ClientGUI clientGUI;
+    private String message;
+    private String id;
 
     public MafiaClient() {
         socket = new Socket();
     }
 
-    @Override
-    public void run() {
+    public void setGUI(ClientGUI clientGUI) {
+        this.clientGUI = clientGUI;
+    }
+
+    public void connect() {
         try {
-            socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
+            socket = new Socket(SERVER_IP, SERVER_PORT);
+            System.out.println("서버 연결 완료");
+
             sendToServer();
         } catch (IOException e) {
             e.printStackTrace();
@@ -29,43 +36,30 @@ public class MafiaClient extends Thread{
 
     public void sendToServer() {
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-            BufferedReader serverBuf = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String message;
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-            message = bufferedReader.readLine();
+            dataOutputStream.writeUTF(id);
+            System.out.println("채팅방 입장");
 
-            printWriter.println(message);
-            printWriter.flush();
-
-            while(true) {
-                message = bufferedReader.readLine();
-
-                if (message.equals("exit") || message.equals("종료")) {
-                    break;
-                }
-
-                printWriter.println(message);
-                printWriter.flush();
-
-                // sString receiveMessage = serverBuf.readLine();
+            while (dataInputStream != null) {
+                message = dataInputStream.readUTF();
+                clientGUI.appendMessage(message);
             }
 
-            String name = "" + ThreadLocalRandom.current().nextInt(2147483647);
-            Thread sender = new SendThread(socket, name);
-            Thread receiver = new ReceiveThread(socket);
-
-            sender.start();
-            receiver.start();
-
-            printWriter.close();
-            bufferedReader.close();
             disconnectServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void sendMessage(String message) {
+        try {
+            dataOutputStream.writeUTF(message);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void disconnectServer() {
@@ -76,5 +70,9 @@ public class MafiaClient extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

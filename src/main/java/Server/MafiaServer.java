@@ -83,13 +83,13 @@ public class MafiaServer{
     }
 
     public void addClient(String id, DataOutputStream dataOutputStream) {
-        String message = id + "님이 접속하였습니다.";
+        String message = id + "님이 접속하였습니다." + "\n";
         sendMessage(message);
         clients.put(id, dataOutputStream);
     }
 
     public void removeClient(String id) {
-        String message = id + "님이 퇴장하였습니다.";
+        String message = id + "님이 퇴장하였습니다." + "\n";
         sendMessage(message);
         clients.remove(id);
     }
@@ -118,7 +118,7 @@ public class MafiaServer{
             try{
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                id = "" + ThreadLocalRandom.current().nextInt(2147483647);
+                id = dataInputStream.readUTF();
                 addClient(id, dataOutputStream);
             }catch(Exception e){
                 System.out.println("예외:"+e);

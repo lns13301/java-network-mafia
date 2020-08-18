@@ -1,19 +1,23 @@
-import Client.MafiaClient;
+import Client.ClientGUI;
 import Server.ServerGUI;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Application {
+    private static String id;
+
     public static void main(String[] args) throws IOException {
         new ServerGUI();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        initialize();
+    }
 
-/*        (new MafiaClient()).start();
-        (new MafiaClient()).start();*/
+    public static void initialize() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("닉네임을 설정하세요 : ");
+        id = scanner.nextLine();
+        scanner.close();
+        new ClientGUI(id);
     }
 }
