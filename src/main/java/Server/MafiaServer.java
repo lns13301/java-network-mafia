@@ -137,12 +137,46 @@ public class MafiaServer{
             try {
                 while (dataInputStream != null) {
                     message = dataInputStream.readUTF();
+
+                    switch (message) {
+                        case "/게임시작":
+                            sendMessage("게임을 시작합니다.");
+                        case "/참가자":
+                            sendMessagePeople();
+                    }
+
+                    if (message.substring(message.length() - 2, message.length() - 1).equals("/")) {
+                        sendMessageHelp();
+                    }
+
                     sendMessage(message);
                 }
             }
             catch (IOException e){
                 e.printStackTrace();
                 removeClient(id);
+            }
+        }
+
+        public void sendMessageHelp() {
+            String message = "\n" + "도움말입니다.\n\n"
+                    + "/게임시작 : 게임을 시작할 수 있습니다.\n"
+                    + "/규칙 : 게임규칙을 확인할 수 있습니다.\n"
+                    + "/직업 : 직업의 종류와 능력을 확인할 수 있습니다.\n"
+                    + "/참가자 : 참가인원의 수를 확인합니다.\n";
+            try {
+                clients.get(id).writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void sendMessagePeople() {
+            String message = connectedCount + "명이 접속중입니다.";
+            try {
+                clients.get(id).writeUTF(message);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
