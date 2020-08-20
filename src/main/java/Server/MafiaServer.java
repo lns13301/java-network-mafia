@@ -3,6 +3,7 @@ package Server;
 import Client.ReceiveThread;
 import sun.net.NetworkClient;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -16,9 +17,15 @@ public class MafiaServer{
     private String localHostAddress;
     private boolean isRunning;
     private Map<String, DataOutputStream> clients;
-    private int connectedCount;
+    private int connectedCount = 0;
+    private String message;
 
     private ServerGUI serverGUI;
+    private JTextArea jTextArea;
+
+    public MafiaServer(JTextArea jTextArea) {
+        this.jTextArea = jTextArea;
+    }
 
     public void setGui(ServerGUI serverGUI) {
         this.serverGUI = serverGUI;
@@ -45,7 +52,7 @@ public class MafiaServer{
     }
 
     public void waitClientConnection() {
-        while (true) {
+        while (isRunning) {
             try {
                 Socket socket = serverSocket.accept();
                 connectedCount++;
@@ -97,6 +104,7 @@ public class MafiaServer{
     public void sendMessage(String message) {
         Iterator<String> iterator = clients.keySet().iterator();
         String key = "";
+        jTextArea.append(message);
 
         while (iterator.hasNext()) {
             key = iterator.next();
@@ -112,7 +120,6 @@ public class MafiaServer{
         private DataInputStream dataInputStream;
         private DataOutputStream dataOutputStream;
         private String id;
-        private String message;
 
         public Receiver(Socket socket) {
             try{

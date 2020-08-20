@@ -10,7 +10,7 @@ public class ServerGUI extends JFrame implements ActionListener {
     private static final long serialVersionUID =1L;
     private JTextArea jTextArea = new JTextArea(40,25);
     private JTextField jTextField = new JTextField(25);
-    private MafiaServer server = new MafiaServer();
+    private MafiaServer server = new MafiaServer(jTextArea);
 
     public ServerGUI() throws IOException {
 
