@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Scanner;
 
 public class ClientGUI extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -13,7 +12,7 @@ public class ClientGUI extends JFrame implements ActionListener {
     private MafiaClient client = new MafiaClient();
     private static String id;
 
-    public ClientGUI(String id) {
+    public ClientGUI() {
         add(jTextArea, BorderLayout.CENTER);
         add(jTextField, BorderLayout.SOUTH);
         jTextField.addActionListener(this);
@@ -24,19 +23,29 @@ public class ClientGUI extends JFrame implements ActionListener {
         setTitle("MafiaClient");
 
         client.setGUI(this);
-        this.id = id;
+        this.id = "익명";
         client.setId(id);
         client.connect();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String message = id + " : " + jTextField.getText() + "\n";
-        client.sendMessage(message);
+        String message = jTextField.getText();
+
+        if (message.equals("/지우기") || message.equals("/c") || message.equals("/ㅈ")) {
+            clearChatLog();
+        }
+        else {
+            client.sendMessage(message);
+        }
         jTextField.setText("");
     }
 
     public void appendMessage(String message) {
         jTextArea.append(message);
+    }
+
+    public void clearChatLog() {
+        jTextArea.setText("");
     }
 }

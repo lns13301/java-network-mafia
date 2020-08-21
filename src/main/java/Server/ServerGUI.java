@@ -13,7 +13,6 @@ public class ServerGUI extends JFrame implements ActionListener {
     private MafiaServer server = new MafiaServer(jTextArea);
 
     public ServerGUI() throws IOException {
-
         add(jTextArea, BorderLayout.CENTER);
         add(jTextField, BorderLayout.SOUTH);
         jTextField.addActionListener(this);
@@ -32,10 +31,10 @@ public class ServerGUI extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String message = "서버 : " +jTextField.getText() + "\n";
-        System.out.print(message);
+        String message = "서버 : " +jTextField.getText();
+        System.out.println(message);
         server.sendMessage(message);
-        appendMessage(message);
+        //appendMessage(message);
         jTextField.setText("");
     }
 

@@ -1,15 +1,11 @@
 package Server;
 
-import Client.ReceiveThread;
-import sun.net.NetworkClient;
-
 import javax.swing.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class MafiaServer{
     private static final int SERVER_PORT = 2345;
@@ -90,26 +86,41 @@ public class MafiaServer{
     }
 
     public void addClient(String id, DataOutputStream dataOutputStream) {
-        String message = id + "님이 접속하였습니다." + "\n";
+        String message = id + "님이 접속하였습니다.";
         sendMessage(message);
         clients.put(id, dataOutputStream);
     }
 
     public void removeClient(String id) {
-        String message = id + "님이 퇴장하였습니다." + "\n";
+        String message = id + "님이 퇴장하였습니다.";
         sendMessage(message);
         clients.remove(id);
+    }
+
+    public void sendMessage(String id, String message) {
+        Iterator<String> iterator = clients.keySet().iterator();
+        String key = "";
+        jTextArea.append(id + " : " + message + "\n");
+
+        while (iterator.hasNext()) {
+            key = iterator.next();
+            try {
+                clients.get(key).writeUTF(id + " : " + message + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void sendMessage(String message) {
         Iterator<String> iterator = clients.keySet().iterator();
         String key = "";
-        jTextArea.append(message);
+        jTextArea.append(message + "\n");
 
         while (iterator.hasNext()) {
             key = iterator.next();
             try {
-                clients.get(key).writeUTF(message);
+                clients.get(key).writeUTF(message + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -138,18 +149,28 @@ public class MafiaServer{
                 while (dataInputStream != null) {
                     message = dataInputStream.readUTF();
 
+                    sendMessage(id, message);
                     switch (message) {
+                        case "/":
+                            sendMessageHelp();
+                            break;
+                        case "/도움":
+                            sendMessageHelp();
+                            break;
                         case "/게임시작":
-                            sendMessage("게임을 시작합니다.");
+                            sendMessage("게임을 시작합니다.\n");
+                            break;
                         case "/참가자":
                             sendMessagePeople();
+                            break;
                     }
 
-                    if (message.substring(message.length() - 2, message.length() - 1).equals("/")) {
-                        sendMessageHelp();
+                    if (message.length() > 6 && message.substring(0, 5).equals("/이름변경")) {
+                        removeClient(id);
+                        id = message.substring(6);
+                        addClient(id, dataOutputStream);
+                        clients.get(id).writeUTF("닉네임이 '" + id + "'(으)로 변경되었습니다.\n");
                     }
-
-                    sendMessage(message);
                 }
             }
             catch (IOException e){
@@ -159,11 +180,13 @@ public class MafiaServer{
         }
 
         public void sendMessageHelp() {
-            String message = "\n" + "도움말입니다.\n\n"
+            String message = "\n" + "도움말입니다.\n"
+                    + "/이름변경 : /이름변경 OOOO \n(OOOO 부분에 원하는 닉네임 입력 시 변경됨)\n"
+                    + "/지우기 (/c, /ㅈ) : 이전까지 작성된 채팅기록을 지웁니다."
                     + "/게임시작 : 게임을 시작할 수 있습니다.\n"
                     + "/규칙 : 게임규칙을 확인할 수 있습니다.\n"
                     + "/직업 : 직업의 종류와 능력을 확인할 수 있습니다.\n"
-                    + "/참가자 : 참가인원의 수를 확인합니다.\n";
+                    + "/참가자 : 참가인원의 수를 확인합니다.\n\n";
             try {
                 clients.get(id).writeUTF(message);
             } catch (IOException e) {
@@ -172,7 +195,7 @@ public class MafiaServer{
         }
 
         public void sendMessagePeople() {
-            String message = connectedCount + "명이 접속중입니다.";
+            String message = connectedCount + "명이 접속중입니다.\n";
             try {
                 clients.get(id).writeUTF(message);
             } catch (IOException e) {
