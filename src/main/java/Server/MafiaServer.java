@@ -18,6 +18,7 @@ public class MafiaServer{
 
     private ServerGUI serverGUI;
     private JTextArea jTextArea;
+    private boolean isCommand;
 
     public MafiaServer(JTextArea jTextArea) {
         this.jTextArea = jTextArea;
@@ -33,8 +34,9 @@ public class MafiaServer{
             serverSocket = new ServerSocket();
             clients = new HashMap<>();
             connectedCount = 0;
+            isCommand = false;
 
-            localHostAddress = "127.0.0.1";
+            localHostAddress = "202.30.32.219";
             serverSocket.bind(new InetSocketAddress(localHostAddress, SERVER_PORT));
             isRunning = true;
 
@@ -97,9 +99,15 @@ public class MafiaServer{
         clients.remove(id);
     }
 
-    public void sendMessage(String id, String message) {
+    public void sendMessage(String id, String message) throws IOException {
+        if (isCommand) {
+            clients.get(id).writeUTF("");
+            isCommand = false;
+            return;
+        }
+
         Iterator<String> iterator = clients.keySet().iterator();
-        String key = "";
+        String key;
         jTextArea.append(id + " : " + message + "\n");
 
         while (iterator.hasNext()) {
@@ -114,7 +122,7 @@ public class MafiaServer{
 
     public void sendMessage(String message) {
         Iterator<String> iterator = clients.keySet().iterator();
-        String key = "";
+        String key;
         jTextArea.append(message + "\n");
 
         while (iterator.hasNext()) {
@@ -149,28 +157,31 @@ public class MafiaServer{
                 while (dataInputStream != null) {
                     message = dataInputStream.readUTF();
 
-                    sendMessage(id, message);
                     switch (message) {
                         case "/":
-                            sendMessageHelp();
-                            break;
                         case "/도움":
                             sendMessageHelp();
+                            isCommand = true;
                             break;
                         case "/게임시작":
                             sendMessage("게임을 시작합니다.\n");
+                            isCommand = true;
                             break;
                         case "/참가자":
                             sendMessagePeople();
+                            isCommand = true;
                             break;
                     }
 
-                    if (message.length() > 6 && message.substring(0, 5).equals("/이름변경")) {
+                    if (message.length() > 6 && message.startsWith("/이름변경")) {
                         removeClient(id);
                         id = message.substring(6);
                         addClient(id, dataOutputStream);
                         clients.get(id).writeUTF("닉네임이 '" + id + "'(으)로 변경되었습니다.\n");
+                        isCommand = true;
                     }
+
+                    sendMessage(id, message);
                 }
             }
             catch (IOException e){
@@ -182,7 +193,7 @@ public class MafiaServer{
         public void sendMessageHelp() {
             String message = "\n" + "도움말입니다.\n"
                     + "/이름변경 : /이름변경 OOOO \n(OOOO 부분에 원하는 닉네임 입력 시 변경됨)\n"
-                    + "/지우기 (/c, /ㅈ) : 이전까지 작성된 채팅기록을 지웁니다."
+                    + "/지우기 (/c, /ㅈ) : 이전까지 작성된 채팅기록을 지웁니다.\n"
                     + "/게임시작 : 게임을 시작할 수 있습니다.\n"
                     + "/규칙 : 게임규칙을 확인할 수 있습니다.\n"
                     + "/직업 : 직업의 종류와 능력을 확인할 수 있습니다.\n"
@@ -203,5 +214,4 @@ public class MafiaServer{
             }
         }
     }
-
 }
