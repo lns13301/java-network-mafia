@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MafiaServer{
     private static final int SERVER_PORT = 2345;
@@ -19,6 +20,9 @@ public class MafiaServer{
     private ServerGUI serverGUI;
     private JTextArea jTextArea;
     private boolean isCommand;
+
+    // 마피아 게임
+    private List<String> players;
 
     public MafiaServer(JTextArea jTextArea) {
         this.jTextArea = jTextArea;
@@ -36,9 +40,12 @@ public class MafiaServer{
             connectedCount = 0;
             isCommand = false;
 
-            localHostAddress = "202.30.32.219";
+            localHostAddress = "127.0.0.1";
+            //localHostAddress = "202.30.32.219";
             serverSocket.bind(new InetSocketAddress(localHostAddress, SERVER_PORT));
             isRunning = true;
+
+            players = new LinkedList<>();
 
             System.out.println("[server] binding! \naddress:" + localHostAddress + ", port:" + SERVER_PORT);
         } catch (IOException e) {
@@ -53,7 +60,6 @@ public class MafiaServer{
         while (isRunning) {
             try {
                 Socket socket = serverSocket.accept();
-                connectedCount++;
 
                 InetSocketAddress remoteSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
                 String remoteHostName = remoteSocketAddress.getAddress().getHostAddress();
@@ -89,12 +95,14 @@ public class MafiaServer{
 
     public void addClient(String id, DataOutputStream dataOutputStream) {
         String message = id + "님이 접속하였습니다.";
+        connectedCount++;
         sendMessage(message);
         clients.put(id, dataOutputStream);
     }
 
     public void removeClient(String id) {
         String message = id + "님이 퇴장하였습니다.";
+        connectedCount--;
         sendMessage(message);
         clients.remove(id);
     }
@@ -212,6 +220,43 @@ public class MafiaServer{
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        
+        public void gameStart() {
+            Map<String, MafiaInformation> players = new HashMap<>();
+
+            if (connectedCount < 9) {
+                sendMessage("참가인원이 9명 보다 적어서 " + (9 - connectedCount) +"명의 AI를 추가합니다.");
+            }
+
+            Iterator<String> iterator = clients.keySet().iterator();
+            String key;
+
+            while (iterator.hasNext()) {
+                key = iterator.next();
+                //players.put(key, new MafiaInformation());
+            }
+
+            for (int i = 0; i < 9 - connectedCount; i ++) {
+
+            }
+
+            sendMessage("밤이되었습니다. 능력을 사용할 대상을 정하세요.");
+            sendMessage("/능력 OOOO  (OOOO에 닉네임 입력)");
+        }
+
+        public void shuffleJob() {
+            List<Job> jobs = new LinkedList<>();
+            jobs.add(Job.MAFIA);
+            jobs.add(Job.MAFIA);
+            jobs.add(Job.POLICE);
+            jobs.add(Job.DOCTOR);
+            ThreadLocalRandom.current().nextInt(6, 1);
+            //jobs.add()
+        }
+
+        public void getJob() {
+
         }
     }
 }

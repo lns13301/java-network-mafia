@@ -6,7 +6,8 @@ import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MafiaClient {
-    private static final String SERVER_IP = "202.30.32.219";
+    private static final String SERVER_IP = "127.0.0.1";
+    //private static final String SERVER_IP = "202.30.32.219";
     private static final int SERVER_PORT = 2345;
     private Socket socket;
     private DataInputStream dataInputStream;

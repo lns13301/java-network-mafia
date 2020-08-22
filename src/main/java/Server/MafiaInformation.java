@@ -17,16 +17,16 @@ public class MafiaInformation {
 
 enum Job {
     NONE,
-    CITIZEN,
-    VILLAIN,
     MAFIA,
     POLICE,
     DOCTOR,
+    CITIZEN,
+    VILLAIN,
     SPY,
     BEAST,
     SOLDIER,
     POLITICIAN,
-    GANGSTER,
+    GANGSTER
 }
 
 enum Skill {
