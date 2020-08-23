@@ -234,7 +234,7 @@ public class MafiaServer{
 
             while (iterator.hasNext()) {
                 key = iterator.next();
-                //players.put(key, new MafiaInformation());
+                players.put(key, new MafiaInformation(getJob(), getSkill()));
             }
 
             for (int i = 0; i < 9 - connectedCount; i ++) {
@@ -255,8 +255,15 @@ public class MafiaServer{
             //jobs.add()
         }
 
-        public void getJob() {
+        public Job getJob() {
+            return Job.CITIZEN;
+        }
 
+        public List<Skill> getSkill() {
+            List<Skill> skills = new LinkedList<>();
+            skills.add(Skill.VOTE);
+
+            return skills;
         }
     }
 }
